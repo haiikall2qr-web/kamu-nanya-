@@ -22,10 +22,13 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
     sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
 # Buat script entrypoint agar password bisa diatur lewat Variables Railway (ROOT_PASSWORD)
-RUN printf '#!/bin/bash\n\
-PASS="${ROOT_PASSWORD:-thiskyro}"\n\
-echo "root:${PASS}" | chpasswd\n\
-exec /usr/sbin/sshd -D\n' > /entrypoint.sh && chmod +x /entrypoint.sh
+RUN cat <<'EOF' > /entrypoint.sh
+#!/bin/bash
+PASS="${ROOT_PASSWORD:-thiskyro}"
+echo "root:${PASS}" | chpasswd
+exec /usr/sbin/sshd -D
+EOF
+RUN chmod +x /entrypoint.sh
 
 WORKDIR /root
 
